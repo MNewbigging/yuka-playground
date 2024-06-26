@@ -1,7 +1,7 @@
 import { makeAutoObservable, observable } from "mobx";
 import * as THREE from "three";
 import * as YUKA from "yuka";
-import { AssetManager } from "../loaders/asset-manager";
+import { AssetManager } from "./asset-manager";
 import { Level } from "./level";
 
 export class GameState {

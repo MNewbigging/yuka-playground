@@ -1,7 +1,7 @@
 import { GameState } from "../game/game-state";
 import { action, makeAutoObservable, observable } from "mobx";
 import { EventListener } from "../listeners/event-listener";
-import { AssetManager } from "../loaders/asset-manager";
+import { AssetManager } from "../game/asset-manager";
 
 export class AppState {
   // Observables for UI
