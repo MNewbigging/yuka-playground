@@ -4,7 +4,7 @@ import * as YUKA from "yuka";
 import { AssetManager } from "./asset-manager";
 import { Level } from "./level";
 import { Player } from "./player";
-import { FpsControls } from "./fps-controls";
+import { createConvexRegionHelper } from "../utils/navmesh-helper";
 
 export class GameState {
   @observable paused = false;
@@ -24,8 +24,10 @@ export class GameState {
     this.setupLevel();
     this.player = this.setupPlayer();
 
-    const axesHeper = new THREE.AxesHelper(50);
-    this.scene.add(axesHeper);
+    if (assetManager.navmesh) {
+      const helper = createConvexRegionHelper(assetManager.navmesh);
+      this.scene.add(helper);
+    }
   }
 
   start() {
@@ -89,11 +91,11 @@ export class GameState {
   }
 
   private setupPlayer() {
-    const player = new Player();
-    this.camera.matrixAutoUpdate = false;
-    player.head.setRenderComponent(this.camera, this.syncCamera);
+    const player = new Player(this.assetManager.navmesh);
 
-    player.position.set(0, 1.5, 0);
+    this.camera.matrixAutoUpdate = false;
+
+    player.head.setRenderComponent(this.camera, this.syncCamera);
 
     this.entityManager.add(player);
 

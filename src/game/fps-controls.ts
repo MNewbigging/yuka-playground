@@ -62,6 +62,8 @@ export class FpsControls {
     }
 
     this.updateVelocity(dt);
+
+    this.updateHead();
   }
 
   private updateVelocity(dt: number) {
@@ -85,6 +87,13 @@ export class FpsControls {
     }
 
     this.player.velocity.copy(velocity).applyRotation(this.player.rotation);
+  }
+
+  private updateHead() {
+    const player = this.player;
+    const head = this.player.head;
+
+    head.position.y = player.height;
   }
 
   private onKeyDown = (event: KeyboardEvent) => {
