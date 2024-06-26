@@ -3,6 +3,8 @@ import * as THREE from "three";
 import * as YUKA from "yuka";
 import { AssetManager } from "./asset-manager";
 import { Level } from "./level";
+import { Player } from "./player";
+import { FpsControls } from "./fps-controls";
 
 export class GameState {
   @observable paused = false;
@@ -11,13 +13,16 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private renderer = new THREE.WebGLRenderer({ antialias: true });
 
+  private time = new YUKA.Time();
   private entityManager = new YUKA.EntityManager();
+  private player: Player;
 
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
 
     this.setupScene();
     this.setupLevel();
+    this.player = this.setupPlayer();
   }
 
   start() {
@@ -39,8 +44,7 @@ export class GameState {
       0.1,
       500
     );
-    this.camera.position.set(2, 2, 2);
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+    this.camera.position.set(0, 1.5, 0);
 
     // lights
 
@@ -71,8 +75,32 @@ export class GameState {
     this.scene.add(renderComponent);
   }
 
+  private setupPlayer() {
+    const player = new Player();
+
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(),
+      new THREE.MeshBasicMaterial({ color: "green" })
+    );
+    player.position.set(0, 1.5, -5);
+    box.position.set(0, 1.5, -5);
+    player.setRenderComponent(box, this.sync);
+    this.scene.add(box);
+
+    player.head.setRenderComponent(this.camera, this.syncCamera);
+
+    this.entityManager.add(player);
+
+    return player;
+  }
+
   private update = () => {
     requestAnimationFrame(this.update);
+
+    this.time.update();
+    const dt = this.time.getDelta();
+
+    this.entityManager.update(dt);
 
     this.renderer.clear();
 
@@ -83,9 +111,22 @@ export class GameState {
     yukaEntity: YUKA.GameEntity,
     renderComponent: THREE.Object3D
   ) => {
-    renderComponent.matrix.fromArray(
-      yukaEntity.worldMatrix.toArray(new Array())
+    // const matrix = yukaEntity.worldMatrix as unknown;
+    // renderComponent.matrix.copy(matrix as THREE.Matrix4);
+
+    renderComponent.position.set(
+      yukaEntity.position.x,
+      yukaEntity.position.y,
+      yukaEntity.position.z
     );
+  };
+
+  private syncCamera = (
+    yukaEntity: YUKA.GameEntity,
+    camera: THREE.PerspectiveCamera
+  ) => {
+    const matrix = yukaEntity.worldMatrix as unknown;
+    camera.matrixWorld.copy(matrix as THREE.Matrix4);
   };
 
   private onWindowResize = () => {
