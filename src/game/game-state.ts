@@ -90,16 +90,10 @@ export class GameState {
 
   private setupPlayer() {
     const player = new Player();
+    this.camera.matrixAutoUpdate = false;
+    player.head.setRenderComponent(this.camera, this.syncCamera);
 
-    const box = new THREE.Mesh(
-      new THREE.BoxGeometry(),
-      new THREE.MeshBasicMaterial({ color: "green" })
-    );
-    player.position.set(0, 1.5, -5);
-    box.position.set(0, 1.5, -5);
-    this.addEntity(player, box);
-
-    //player.head.setRenderComponent(this.camera, this.syncCamera);
+    player.position.set(0, 1.5, 0);
 
     this.entityManager.add(player);
 

@@ -17,8 +17,11 @@ export class Player extends YUKA.MovingEntity {
 
     // player owns the first person controls
 
+    this.updateOrientation = false;
     this.fpsControls = new FpsControls(this);
     this.fpsControls.enable();
+
+    this.maxSpeed = 6;
   }
 
   override update(delta: number): this {

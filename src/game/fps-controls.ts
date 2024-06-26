@@ -1,4 +1,5 @@
 import * as YUKA from "yuka";
+import { Player } from "./player";
 
 interface Input {
   forward: boolean;
@@ -27,7 +28,7 @@ export class FpsControls {
   private movementY = 0;
   private lookSpeed = 2;
 
-  constructor(private player: YUKA.MovingEntity) {}
+  constructor(private player: Player) {}
 
   enable() {
     if (this.enabled) {
@@ -36,7 +37,9 @@ export class FpsControls {
 
     document.addEventListener("keydown", this.onKeyDown, false);
     document.addEventListener("keyup", this.onKeyUp, false);
-    //document.addEventListener("mousemove", this.onMouseMove, false);
+    document.addEventListener("mousemove", this.onMouseMove, false);
+
+    document.body.requestPointerLock();
 
     this.enabled = true;
   }
@@ -48,7 +51,7 @@ export class FpsControls {
 
     document.removeEventListener("keydown", this.onKeyDown, false);
     document.removeEventListener("keyup", this.onKeyUp, false);
-    // document.removeEventListener("mousemove", this.onMouseMove, false);
+    document.removeEventListener("mousemove", this.onMouseMove, false);
 
     this.enabled = false;
   }
@@ -73,12 +76,15 @@ export class FpsControls {
     direction.x = Number(input.left) - Number(input.right);
     direction.normalize();
 
-    if (input.forward || input.backward)
+    if (input.forward || input.backward) {
       velocity.z -= direction.z * this.acceleration * dt;
-    if (input.left || input.right)
-      velocity.x -= direction.x * this.acceleration * dt;
+    }
 
-    this.player.velocity.copy(velocity);
+    if (input.left || input.right) {
+      velocity.x -= direction.x * this.acceleration * dt;
+    }
+
+    this.player.velocity.copy(velocity).applyRotation(this.player.rotation);
   }
 
   private onKeyDown = (event: KeyboardEvent) => {
@@ -124,15 +130,14 @@ export class FpsControls {
   };
 
   private onMouseMove = (event: MouseEvent) => {
-    if (!this.enabled) {
-      return;
+    if (this.enabled) {
+      this.movementX -= event.movementX * 0.001 * this.lookSpeed;
+      this.movementY -= event.movementY * 0.001 * this.lookSpeed;
+
+      this.movementY = Math.max(-PI05, Math.min(PI05, this.movementY)); // clamp to within half pi of edges
+
+      this.player.rotation.fromEuler(0, this.movementX, 0); // yaw
+      this.player.head.rotation.fromEuler(this.movementY, 0, 0);
     }
-
-    this.movementX -= event.movementX * 0.001 * this.lookSpeed;
-    this.movementY -= event.movementY * 0.001 * this.lookSpeed;
-
-    this.movementY = Math.max(-PI05, Math.min(PI05, this.movementY)); // clamp to within half pi of edges
-
-    this.player.rotation.fromEuler(0, this.movementX, 0); // yaw
   };
 }
