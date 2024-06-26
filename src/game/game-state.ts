@@ -1,88 +1,89 @@
+import { makeAutoObservable, observable } from "mobx";
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
-import { GameLoader } from "../loaders/game-loader";
-import { RenderPipeline } from "./render-pipeline";
-import { AnimatedCharacter } from "./animated-character";
-import { EventListener } from "../listeners/event-listener";
+import * as YUKA from "yuka";
+import { AssetManager } from "../loaders/asset-manager";
 
 export class GameState {
-  private renderPipeline: RenderPipeline;
-  private clock = new THREE.Clock();
+  @observable paused = false;
 
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera();
-  private controls: OrbitControls;
+  private renderer = new THREE.WebGLRenderer({ antialias: true });
 
-  private animatedCharacter: AnimatedCharacter;
+  constructor(private assetManager: AssetManager) {
+    makeAutoObservable(this);
 
-  constructor(private gameLoader: GameLoader, private events: EventListener) {
-    this.setupCamera();
+    this.setupScene();
+    this.setupLevel();
+  }
 
-    this.renderPipeline = new RenderPipeline(this.scene, this.camera);
-
-    this.setupLights();
-    this.setupObjects();
-
-    this.controls = new OrbitControls(this.camera, this.renderPipeline.canvas);
-    this.controls.enableDamping = true;
-    this.controls.target.set(0, 1, 0);
-
-    this.scene.background = new THREE.Color("#1680AF");
-
-    this.animatedCharacter = this.setupAnimatedCharacter();
-    this.scene.add(this.animatedCharacter.object);
-    this.animatedCharacter.playAnimation("idle");
-
-    // Start game
+  start() {
     this.update();
   }
 
-  private setupCamera() {
-    this.camera.fov = 75;
-    this.camera.far = 500;
-    this.camera.position.set(0, 1.5, 3);
-  }
+  private setupScene() {
+    // skybox
 
-  private setupLights() {
+    const hdri = this.assetManager.textures.get("hdri");
+    this.scene.environment = hdri;
+    this.scene.background = hdri;
+    console.log("hdri", hdri, this.scene.environment, this.scene.background);
+
+    // camera
+
+    this.camera = new THREE.PerspectiveCamera(
+      65,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      500
+    );
+    this.camera.position.set(2, 2, 2);
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    // lights
+
     const ambientLight = new THREE.AmbientLight(undefined, 0.25);
     this.scene.add(ambientLight);
 
     const directLight = new THREE.DirectionalLight(undefined, Math.PI);
     directLight.position.copy(new THREE.Vector3(0.75, 1, 0.75).normalize());
     this.scene.add(directLight);
+
+    // renderer
+
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.autoClear = false;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    window.addEventListener("resize", this.onWindowResize, false);
+
+    const canvasRoot = document.getElementById("canvas-root");
+    canvasRoot?.appendChild(this.renderer.domElement);
   }
 
-  private setupObjects() {
-    const box = this.gameLoader.modelLoader.get("box");
+  private setupLevel() {
+    const box = new THREE.Mesh(
+      new THREE.BoxGeometry(),
+      new THREE.MeshBasicMaterial({ color: "green" })
+    );
     this.scene.add(box);
-  }
-
-  private setupAnimatedCharacter(): AnimatedCharacter {
-    const object = this.gameLoader.modelLoader.get("bandit");
-    object.position.z = -0.5;
-    this.gameLoader.textureLoader.applyModelTexture(object, "bandit");
-
-    const mixer = new THREE.AnimationMixer(object);
-    const actions = new Map<string, THREE.AnimationAction>();
-    const idleClip = this.gameLoader.animLoader.clips.get("idle");
-    if (idleClip) {
-      const idleAction = mixer.clipAction(idleClip);
-      actions.set("idle", idleAction);
-    }
-
-    return new AnimatedCharacter(object, mixer, actions);
   }
 
   private update = () => {
     requestAnimationFrame(this.update);
 
-    const dt = this.clock.getDelta();
+    this.renderer.clear();
 
-    this.controls.update();
+    this.renderer.render(this.scene, this.camera);
+  };
 
-    this.animatedCharacter.update(dt);
+  private onWindowResize = () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
-    this.renderPipeline.render(dt);
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(width, height);
   };
 }

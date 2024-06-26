@@ -1,29 +1,34 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 
 export class AssetManager {
   textures = new Map();
+  models = new Map();
 
   private loadingManager = new THREE.LoadingManager();
+
   load(): Promise<void> {
-    const textureLoader = new THREE.TextureLoader(this.loadingManager);
-    this.loadTextures(textureLoader);
+    const rgbeLoader = new RGBELoader(this.loadingManager);
+    this.loadTextures(rgbeLoader);
 
     const gltfLoader = new GLTFLoader(this.loadingManager);
     this.loadModels(gltfLoader);
 
     return new Promise((resolve) => {
       this.loadingManager.onLoad = () => {
+        console.log("loaded", this.textures, this.models);
         resolve();
       };
     });
   }
 
-  private loadTextures(textureLoader: THREE.TextureLoader) {
+  private loadTextures(rgbeLoader: RGBELoader) {
     const hdriUrl = new URL("/textures/orchard_cartoony.hdr", import.meta.url)
       .href;
-    const hdriTexture = textureLoader.load(hdriUrl);
+    const hdriTexture = rgbeLoader.load(hdriUrl);
     hdriTexture.matrixAutoUpdate = false;
+    hdriTexture.mapping = THREE.EquirectangularReflectionMapping;
     this.textures.set("hdri", hdriTexture);
   }
 
@@ -40,6 +45,8 @@ export class AssetManager {
           child.updateMatrix();
         }
       });
+
+      this.models.set("level", renderComponent);
     });
   }
 }

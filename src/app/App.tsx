@@ -14,7 +14,7 @@ interface AppProps {
 
 export const App: React.FC<AppProps> = observer(({ appState }) => {
   const { gameState } = appState;
-  const paused = appState.paused;
+  const paused = appState.gameState?.paused;
   const started = appState.started;
 
   return (
