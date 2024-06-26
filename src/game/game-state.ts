@@ -2,6 +2,7 @@ import { makeAutoObservable, observable } from "mobx";
 import * as THREE from "three";
 import * as YUKA from "yuka";
 import { AssetManager } from "../loaders/asset-manager";
+import { Level } from "./level";
 
 export class GameState {
   @observable paused = false;
@@ -9,6 +10,8 @@ export class GameState {
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera();
   private renderer = new THREE.WebGLRenderer({ antialias: true });
+
+  private entityManager = new YUKA.EntityManager();
 
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
@@ -27,7 +30,6 @@ export class GameState {
     const hdri = this.assetManager.textures.get("hdri");
     this.scene.environment = hdri;
     this.scene.background = hdri;
-    console.log("hdri", hdri, this.scene.environment, this.scene.background);
 
     // camera
 
@@ -62,11 +64,11 @@ export class GameState {
   }
 
   private setupLevel() {
-    const box = new THREE.Mesh(
-      new THREE.BoxGeometry(),
-      new THREE.MeshBasicMaterial({ color: "green" })
-    );
-    this.scene.add(box);
+    const renderComponent = this.assetManager.models.get("level");
+    const level = new Level();
+    level.name = "level";
+    level.setRenderComponent(renderComponent, this.sync);
+    this.scene.add(renderComponent);
   }
 
   private update = () => {
@@ -75,6 +77,15 @@ export class GameState {
     this.renderer.clear();
 
     this.renderer.render(this.scene, this.camera);
+  };
+
+  private sync = (
+    yukaEntity: YUKA.GameEntity,
+    renderComponent: THREE.Object3D
+  ) => {
+    renderComponent.matrix.fromArray(
+      yukaEntity.worldMatrix.toArray(new Array())
+    );
   };
 
   private onWindowResize = () => {

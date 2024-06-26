@@ -17,7 +17,6 @@ export class AssetManager {
 
     return new Promise((resolve) => {
       this.loadingManager.onLoad = () => {
-        console.log("loaded", this.textures, this.models);
         resolve();
       };
     });
