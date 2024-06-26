@@ -23,6 +23,9 @@ export class GameState {
     this.setupScene();
     this.setupLevel();
     this.player = this.setupPlayer();
+
+    const axesHeper = new THREE.AxesHelper(50);
+    this.scene.add(axesHeper);
   }
 
   start() {
@@ -44,7 +47,9 @@ export class GameState {
       0.1,
       500
     );
-    this.camera.position.set(0, 1.5, 0);
+    this.camera.matrixAutoUpdate = true;
+    this.camera.position.set(5, 5, 5);
+    this.camera.lookAt(0, 1.5, -5);
 
     // lights
 
@@ -84,10 +89,11 @@ export class GameState {
     );
     player.position.set(0, 1.5, -5);
     box.position.set(0, 1.5, -5);
+    box.matrixAutoUpdate = false;
     player.setRenderComponent(box, this.sync);
     this.scene.add(box);
 
-    player.head.setRenderComponent(this.camera, this.syncCamera);
+    //player.head.setRenderComponent(this.camera, this.syncCamera);
 
     this.entityManager.add(player);
 
@@ -111,14 +117,14 @@ export class GameState {
     yukaEntity: YUKA.GameEntity,
     renderComponent: THREE.Object3D
   ) => {
-    // const matrix = yukaEntity.worldMatrix as unknown;
-    // renderComponent.matrix.copy(matrix as THREE.Matrix4);
+    const matrix = yukaEntity.worldMatrix as unknown;
+    renderComponent.matrix.copy(matrix as THREE.Matrix4);
 
-    renderComponent.position.set(
-      yukaEntity.position.x,
-      yukaEntity.position.y,
-      yukaEntity.position.z
-    );
+    // renderComponent.position.set(
+    //   yukaEntity.position.x,
+    //   yukaEntity.position.y,
+    //   yukaEntity.position.z
+    // );
   };
 
   private syncCamera = (

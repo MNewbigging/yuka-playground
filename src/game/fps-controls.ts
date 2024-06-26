@@ -36,7 +36,7 @@ export class FpsControls {
 
     document.addEventListener("keydown", this.onKeyDown, false);
     document.addEventListener("keyup", this.onKeyUp, false);
-    document.addEventListener("mousemove", this.onMouseMove, false);
+    //document.addEventListener("mousemove", this.onMouseMove, false);
 
     this.enabled = true;
   }
@@ -48,7 +48,7 @@ export class FpsControls {
 
     document.removeEventListener("keydown", this.onKeyDown, false);
     document.removeEventListener("keyup", this.onKeyUp, false);
-    document.removeEventListener("mousemove", this.onMouseMove, false);
+    // document.removeEventListener("mousemove", this.onMouseMove, false);
 
     this.enabled = false;
   }
@@ -78,7 +78,7 @@ export class FpsControls {
     if (input.left || input.right)
       velocity.x -= direction.x * this.acceleration * dt;
 
-    this.player.velocity.copy(velocity).applyRotation(this.player.rotation);
+    this.player.velocity.copy(velocity);
   }
 
   private onKeyDown = (event: KeyboardEvent) => {
