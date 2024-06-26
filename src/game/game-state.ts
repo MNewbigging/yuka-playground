@@ -32,6 +32,13 @@ export class GameState {
     this.update();
   }
 
+  addEntity(entity: YUKA.GameEntity, renderComponent: THREE.Object3D) {
+    renderComponent.matrixAutoUpdate = false;
+    this.scene.add(renderComponent);
+    entity.setRenderComponent(renderComponent, this.sync);
+    this.entityManager.add(entity);
+  }
+
   private setupScene() {
     // skybox
 
@@ -73,11 +80,12 @@ export class GameState {
   }
 
   private setupLevel() {
-    const renderComponent = this.assetManager.models.get("level");
+    const renderComponent = this.assetManager.models.get(
+      "level"
+    ) as THREE.Object3D;
     const level = new Level();
     level.name = "level";
-    level.setRenderComponent(renderComponent, this.sync);
-    this.scene.add(renderComponent);
+    this.addEntity(level, renderComponent);
   }
 
   private setupPlayer() {
@@ -89,9 +97,7 @@ export class GameState {
     );
     player.position.set(0, 1.5, -5);
     box.position.set(0, 1.5, -5);
-    box.matrixAutoUpdate = false;
-    player.setRenderComponent(box, this.sync);
-    this.scene.add(box);
+    this.addEntity(player, box);
 
     //player.head.setRenderComponent(this.camera, this.syncCamera);
 
@@ -119,12 +125,6 @@ export class GameState {
   ) => {
     const matrix = yukaEntity.worldMatrix as unknown;
     renderComponent.matrix.copy(matrix as THREE.Matrix4);
-
-    // renderComponent.position.set(
-    //   yukaEntity.position.x,
-    //   yukaEntity.position.y,
-    //   yukaEntity.position.z
-    // );
   };
 
   private syncCamera = (
