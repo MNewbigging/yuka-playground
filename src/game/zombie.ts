@@ -2,8 +2,15 @@ import * as YUKA from "yuka";
 import * as THREE from "three";
 
 export class Zombie extends YUKA.Vehicle {
+  private brain: YUKA.Think<Zombie>;
   private mixer?: THREE.AnimationMixer;
   private animations = new Map<string, THREE.AnimationAction>();
+
+  constructor() {
+    super();
+
+    this.brain = new YUKA.Think(this);
+  }
 
   setAnimations(mixer: THREE.AnimationMixer, clips: THREE.AnimationClip[]) {
     this.mixer = mixer;

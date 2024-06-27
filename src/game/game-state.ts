@@ -26,10 +26,8 @@ export class GameState {
     this.player = this.setupPlayer();
     this.setupZombie();
 
-    if (assetManager.navmesh) {
-      const helper = createConvexRegionHelper(assetManager.navmesh);
-      this.scene.add(helper);
-    }
+    const helper = createConvexRegionHelper(assetManager.navmesh);
+    this.scene.add(helper);
   }
 
   start() {
