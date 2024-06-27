@@ -20,7 +20,7 @@ export class Zombie extends YUKA.Vehicle {
     // goals
 
     this.brain = new YUKA.Think(this);
-    //this.brain.addEvaluator(new TrackPlayerEvaluator());
+    this.brain.addEvaluator(new TrackPlayerEvaluator());
 
     // steering
 
@@ -51,6 +51,11 @@ export class Zombie extends YUKA.Vehicle {
 
   override update(delta: number): this {
     super.update(delta);
+
+    this.brain.execute();
+
+    // could I use a regulator to limit how often new paths are found?
+    this.brain.arbitrate();
 
     this.updateAnimations(delta);
 
