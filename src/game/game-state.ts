@@ -5,6 +5,7 @@ import { AssetManager } from "./asset-manager";
 import { Level } from "./level";
 import { Player } from "./player";
 import { createConvexRegionHelper } from "../utils/navmesh-helper";
+import { Zombie } from "./zombie";
 
 export class GameState {
   @observable paused = false;
@@ -23,6 +24,7 @@ export class GameState {
     this.setupScene();
     this.setupLevel();
     this.player = this.setupPlayer();
+    this.setupZombie();
 
     if (assetManager.navmesh) {
       const helper = createConvexRegionHelper(assetManager.navmesh);
@@ -100,6 +102,24 @@ export class GameState {
     this.entityManager.add(player);
 
     return player;
+  }
+
+  private setupZombie() {
+    const renderComponent = this.assetManager.models.get(
+      "zombie"
+    ) as THREE.Object3D;
+    const texture = this.assetManager.textures.get("zombie-atlas");
+    renderComponent.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.material.map = texture;
+        child.material.vertexColors = false;
+      }
+    });
+
+    const zombie = new Zombie();
+    zombie.scale.multiplyScalar(0.01);
+    zombie.position.set(2, 0, -5);
+    this.addEntity(zombie, renderComponent);
   }
 
   private update = () => {

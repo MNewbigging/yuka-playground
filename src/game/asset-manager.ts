@@ -72,7 +72,6 @@ export class AssetManager {
     ).href;
     fbxLoader.load(zombieUrl, (group) => {
       this.prepModel(group);
-      this.scaleSyntyModel(group);
       this.models.set("zombie", group);
     });
   }
@@ -87,11 +86,6 @@ export class AssetManager {
         child.updateMatrix();
       }
     });
-  }
-
-  private scaleSyntyModel(model: THREE.Object3D) {
-    model.scale.multiplyScalar(0.01);
-    model.updateMatrixWorld();
   }
 
   private loadNavmesh() {
