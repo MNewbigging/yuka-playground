@@ -2,6 +2,7 @@ import * as YUKA from "yuka";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
+import { NavMeshLoaderOptions } from "yuka/src/navigation/navmesh/NavMeshLoader";
 
 export class AssetManager {
   textures = new Map();
@@ -58,7 +59,7 @@ export class AssetManager {
 
     this.loadingManager.itemStart("navmesh");
 
-    const url = new URL("/models/navmesh.glb", import.meta.url).href;
+    const url = new URL("/models/navmesh.gltf", import.meta.url).href;
 
     navmeshLoader.load(url).then((navmesh) => {
       this.navmesh = navmesh;

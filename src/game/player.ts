@@ -1,6 +1,5 @@
 import * as YUKA from "yuka";
 import { FpsControls } from "./fps-controls";
-import { AssetManager } from "./asset-manager";
 
 export class Player extends YUKA.MovingEntity {
   head: YUKA.GameEntity;
@@ -19,6 +18,7 @@ export class Player extends YUKA.MovingEntity {
 
     this.head = new YUKA.GameEntity();
     this.head.forward.set(0, 0, -1);
+    this.head.position.y = this.height;
     this.add(this.head);
 
     // player owns the first person controls
@@ -62,6 +62,6 @@ export class Player extends YUKA.MovingEntity {
 
     const distance = this.currentRegion.plane.distanceToPoint(this.position);
 
-    //this.position.y -= distance * 2;
+    this.position.y -= distance * 0.2;
   }
 }
