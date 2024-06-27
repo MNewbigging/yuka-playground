@@ -2,7 +2,7 @@ import * as YUKA from "yuka";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
-import { NavMeshLoaderOptions } from "yuka/src/navigation/navmesh/NavMeshLoader";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 
 export class AssetManager {
   textures = new Map();
@@ -13,10 +13,12 @@ export class AssetManager {
 
   load(): Promise<void> {
     const rgbeLoader = new RGBELoader(this.loadingManager);
-    this.loadTextures(rgbeLoader);
+    const textureLoader = new THREE.TextureLoader(this.loadingManager);
+    this.loadTextures(rgbeLoader, textureLoader);
 
     const gltfLoader = new GLTFLoader(this.loadingManager);
-    this.loadModels(gltfLoader);
+    const fbxLoader = new FBXLoader(this.loadingManager);
+    this.loadModels(gltfLoader, fbxLoader);
 
     this.loadNavmesh();
 
@@ -27,31 +29,69 @@ export class AssetManager {
     });
   }
 
-  private loadTextures(rgbeLoader: RGBELoader) {
+  private loadTextures(
+    rgbeLoader: RGBELoader,
+    textureLoader: THREE.TextureLoader
+  ) {
+    // hdr skybox
+
     const hdriUrl = new URL("/textures/orchard_cartoony.hdr", import.meta.url)
       .href;
     const hdriTexture = rgbeLoader.load(hdriUrl);
     hdriTexture.matrixAutoUpdate = false;
     hdriTexture.mapping = THREE.EquirectangularReflectionMapping;
     this.textures.set("hdri", hdriTexture);
+
+    // zombie texture atlas
+
+    const zombieUrl = new URL(
+      "/textures/PolygonZombie_Texture_01_A.png",
+      import.meta.url
+    ).href;
+    const zombieTexture = textureLoader.load(zombieUrl);
+    zombieTexture.matrixAutoUpdate = false;
+    zombieTexture.encoding = THREE.sRGBEncoding;
+    this.textures.set("zombie-atlas", zombieTexture);
   }
 
-  private loadModels(gltfLoader: GLTFLoader) {
+  private loadModels(gltfLoader: GLTFLoader, fbxLoader: FBXLoader) {
+    // level
+
     const levelUrl = new URL("/models/level.glb", import.meta.url).href;
     gltfLoader.load(levelUrl, (gltf) => {
       const renderComponent = gltf.scene;
-      renderComponent.matrixAutoUpdate = false;
-      renderComponent.updateMatrix();
-
-      renderComponent.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.matrixAutoUpdate = false;
-          child.updateMatrix();
-        }
-      });
-
+      this.prepModel(renderComponent);
       this.models.set("level", renderComponent);
     });
+
+    // zombie
+
+    const zombieUrl = new URL(
+      "/models/SK_Zombie_Businessman_Male_01.fbx",
+      import.meta.url
+    ).href;
+    fbxLoader.load(zombieUrl, (group) => {
+      this.prepModel(group);
+      this.scaleSyntyModel(group);
+      this.models.set("zombie", group);
+    });
+  }
+
+  private prepModel(model: THREE.Object3D) {
+    model.matrixAutoUpdate = false;
+    model.updateMatrix();
+
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.matrixAutoUpdate = false;
+        child.updateMatrix();
+      }
+    });
+  }
+
+  private scaleSyntyModel(model: THREE.Object3D) {
+    model.scale.multiplyScalar(0.01);
+    model.updateMatrixWorld();
   }
 
   private loadNavmesh() {
