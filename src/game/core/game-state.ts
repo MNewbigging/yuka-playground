@@ -6,6 +6,7 @@ import { Level } from "../entities/level";
 import { Player } from "../entities/player";
 import { createConvexRegionHelper } from "../utils/navmesh-helper";
 import { Zombie } from "../entities/zombie";
+import { PathPlanner } from "./path-planner";
 
 export class GameState {
   @observable paused = false;
@@ -17,17 +18,20 @@ export class GameState {
   private time = new YUKA.Time();
   private entityManager = new YUKA.EntityManager();
   private player: Player;
+  private pathPlanner: PathPlanner;
 
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
+
+    const helper = createConvexRegionHelper(assetManager.navmesh);
+    this.scene.add(helper);
+
+    this.pathPlanner = new PathPlanner(this.assetManager.navmesh);
 
     this.setupScene();
     this.setupLevel();
     this.player = this.setupPlayer();
     this.setupZombie();
-
-    const helper = createConvexRegionHelper(assetManager.navmesh);
-    this.scene.add(helper);
   }
 
   start() {
@@ -132,6 +136,8 @@ export class GameState {
     const dt = this.time.getDelta();
 
     this.entityManager.update(dt);
+
+    this.pathPlanner.update();
 
     this.renderer.clear();
 
