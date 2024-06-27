@@ -118,7 +118,7 @@ export class GameState {
       }
     });
 
-    const zombie = new Zombie();
+    const zombie = new Zombie(this.pathPlanner);
     zombie.scale.multiplyScalar(0.01);
     zombie.position.set(2, 0, -5);
     this.addEntity(zombie, renderComponent);

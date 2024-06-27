@@ -1,5 +1,6 @@
 import * as YUKA from "yuka";
 import * as THREE from "three";
+import { PathPlanner } from "../core/path-planner";
 
 export class Zombie extends YUKA.Vehicle {
   path?: Array<YUKA.Vector3>;
@@ -8,7 +9,7 @@ export class Zombie extends YUKA.Vehicle {
   private mixer?: THREE.AnimationMixer;
   private animations = new Map<string, THREE.AnimationAction>();
 
-  constructor() {
+  constructor(public pathPlanner: PathPlanner) {
     super();
 
     this.brain = new YUKA.Think(this);

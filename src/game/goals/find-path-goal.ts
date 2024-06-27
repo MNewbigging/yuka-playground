@@ -5,7 +5,7 @@ export class FindPathGoal extends YUKA.Goal<Zombie> {
   private from: YUKA.Vector3;
   private to: YUKA.Vector3;
 
-  constructor(owner: Zombie, from: YUKA.Vector3, to: YUKA.Vector3) {
+  constructor(public owner: Zombie, from: YUKA.Vector3, to: YUKA.Vector3) {
     super(owner);
 
     this.from = from;
@@ -13,10 +13,19 @@ export class FindPathGoal extends YUKA.Goal<Zombie> {
   }
 
   override activate(): void {
-    // Start the path finding
+    const owner = this.owner;
+
+    owner.pathPlanner.findPath(owner, this.from, this.to, this.onPathFound);
   }
 
   override execute(): void {
     // Continually check if the path was found
+    if (this.owner.path) {
+      this.status = YUKA.Goal.STATUS.COMPLETED;
+    }
   }
+
+  private onPathFound = (owner: Zombie, path: YUKA.Vector3[]) => {
+    owner.path = path;
+  };
 }
