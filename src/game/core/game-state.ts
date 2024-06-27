@@ -23,12 +23,13 @@ export class GameState {
   constructor(private assetManager: AssetManager) {
     makeAutoObservable(this);
 
+    this.setupScene();
+
     const helper = createConvexRegionHelper(assetManager.navmesh);
     this.scene.add(helper);
 
     this.pathPlanner = new PathPlanner(this.assetManager.navmesh);
 
-    this.setupScene();
     this.setupLevel();
     this.player = this.setupPlayer();
     this.setupZombie();
@@ -60,9 +61,6 @@ export class GameState {
       0.1,
       500
     );
-    this.camera.matrixAutoUpdate = true;
-    this.camera.position.set(5, 5, 5);
-    this.camera.lookAt(0, 1.5, -5);
 
     // lights
 
@@ -98,7 +96,6 @@ export class GameState {
     const player = new Player(this.assetManager.navmesh);
 
     this.camera.matrixAutoUpdate = false;
-
     player.head.setRenderComponent(this.camera, this.syncCamera);
 
     this.entityManager.add(player);
