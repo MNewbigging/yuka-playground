@@ -120,6 +120,11 @@ export class GameState {
     zombie.scale.multiplyScalar(0.01);
     zombie.position.set(2, 0, -5);
     this.addEntity(zombie, renderComponent);
+
+    const mixer = new THREE.AnimationMixer(renderComponent);
+    const idleClip = this.assetManager.animations.get("zombie-idle");
+    const clips = [idleClip];
+    zombie.setAnimations(mixer, clips);
   }
 
   private update = () => {

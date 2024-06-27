@@ -106,7 +106,11 @@ export class AssetManager {
     const zombieIdleUrl = new URL("/anims/zombie-idle.fbx", import.meta.url)
       .href;
     fbxLoader.load(zombieIdleUrl, (group) => {
-      group.animations.forEach((clip) => this.animations.set(clip.name, clip));
+      if (group.animations.length) {
+        const idleClip = group.animations[0]; // only one animation present in the file
+        idleClip.name = "zombie-idle";
+        this.animations.set(idleClip.name, idleClip);
+      }
     });
   }
 }
