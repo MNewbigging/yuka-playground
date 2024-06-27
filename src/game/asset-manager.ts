@@ -7,6 +7,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 export class AssetManager {
   textures = new Map();
   models = new Map();
+  animations = new Map();
   navmesh!: YUKA.NavMesh; // this ! beats a whole load of if statements elsewhere (remind me why i'm using ts again?)
 
   private loadingManager = new THREE.LoadingManager();
@@ -14,13 +15,13 @@ export class AssetManager {
   load(): Promise<void> {
     const rgbeLoader = new RGBELoader(this.loadingManager);
     const textureLoader = new THREE.TextureLoader(this.loadingManager);
-    this.loadTextures(rgbeLoader, textureLoader);
-
     const gltfLoader = new GLTFLoader(this.loadingManager);
     const fbxLoader = new FBXLoader(this.loadingManager);
-    this.loadModels(gltfLoader, fbxLoader);
 
+    this.loadTextures(rgbeLoader, textureLoader);
+    this.loadModels(gltfLoader, fbxLoader);
     this.loadNavmesh();
+    this.loadAnimations(fbxLoader);
 
     return new Promise((resolve) => {
       this.loadingManager.onLoad = () => {
@@ -98,6 +99,14 @@ export class AssetManager {
     navmeshLoader.load(url).then((navmesh) => {
       this.navmesh = navmesh;
       this.loadingManager.itemEnd("navmesh");
+    });
+  }
+
+  private loadAnimations(fbxLoader: FBXLoader) {
+    const zombieIdleUrl = new URL("/anims/zombie-idle.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(zombieIdleUrl, (group) => {
+      group.animations.forEach((clip) => this.animations.set(clip.name, clip));
     });
   }
 }
