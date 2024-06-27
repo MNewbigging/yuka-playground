@@ -1,5 +1,5 @@
 import * as YUKA from "yuka";
-import { FpsControls } from "./fps-controls";
+import { FpsControls } from "../controls/fps-controls";
 
 export class Player extends YUKA.MovingEntity {
   head: YUKA.GameEntity;

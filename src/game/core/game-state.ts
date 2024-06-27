@@ -2,10 +2,10 @@ import { makeAutoObservable, observable } from "mobx";
 import * as THREE from "three";
 import * as YUKA from "yuka";
 import { AssetManager } from "./asset-manager";
-import { Level } from "./level";
-import { Player } from "./player";
+import { Level } from "../entities/level";
+import { Player } from "../entities/player";
 import { createConvexRegionHelper } from "../utils/navmesh-helper";
-import { Zombie } from "./zombie";
+import { Zombie } from "../entities/zombie";
 
 export class GameState {
   @observable paused = false;

@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import { GameState } from "../game/game-state";
+import { GameState } from "../game/core/game-state";
 import "./game-screen.scss";
 import React from "react";
 

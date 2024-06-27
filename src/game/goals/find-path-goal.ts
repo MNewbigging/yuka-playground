@@ -1,5 +1,5 @@
 import * as YUKA from "yuka";
-import { Zombie } from "./zombie";
+import { Zombie } from "../entities/zombie";
 
 export class FindPathGoal extends YUKA.Goal<Zombie> {
   private from: YUKA.Vector3;
