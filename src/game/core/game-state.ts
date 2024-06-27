@@ -122,7 +122,9 @@ export class GameState {
 
     const mixer = new THREE.AnimationMixer(renderComponent);
     const idleClip = this.assetManager.animations.get("zombie-idle");
-    const clips = [idleClip];
+    const walkClip = this.assetManager.animations.get("zombie-walk");
+    const attackClip = this.assetManager.animations.get("zombie-attack");
+    const clips = [idleClip, walkClip, attackClip];
     zombie.setAnimations(mixer, clips);
   }
 

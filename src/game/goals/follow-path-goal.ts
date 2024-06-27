@@ -29,6 +29,10 @@ export class FollowPathGoal extends YUKA.Goal<Zombie> {
     });
 
     this.to = path[path.length - 1];
+
+    // start walk animation
+
+    owner.playAnimation("zombie-walk");
   }
 
   override execute(): void {
@@ -41,5 +45,7 @@ export class FollowPathGoal extends YUKA.Goal<Zombie> {
 
   override terminate(): void {
     this.owner.followPathBehaviour.active = false;
+
+    this.owner.playAnimation("zombie-idle");
   }
 }

@@ -112,5 +112,25 @@ export class AssetManager {
         this.animations.set(idleClip.name, idleClip);
       }
     });
+
+    const zombieWalkUrl = new URL("/anims/zombie-walk.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(zombieWalkUrl, (group) => {
+      if (group.animations.length) {
+        const walkClip = group.animations[0];
+        walkClip.name = "zombie-walk";
+        this.animations.set(walkClip.name, walkClip);
+      }
+    });
+
+    const zombieAttackUrl = new URL("/anims/zombie-attack.fbx", import.meta.url)
+      .href;
+    fbxLoader.load(zombieAttackUrl, (group) => {
+      if (group.animations.length) {
+        const walkClip = group.animations[0];
+        walkClip.name = "zombie-attack";
+        this.animations.set(walkClip.name, walkClip);
+      }
+    });
   }
 }

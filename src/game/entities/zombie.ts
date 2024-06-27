@@ -13,6 +13,7 @@ export class Zombie extends YUKA.Vehicle {
 
   private mixer?: THREE.AnimationMixer;
   private animations = new Map<string, THREE.AnimationAction>();
+  private currentAction?: THREE.AnimationAction;
 
   constructor(public pathPlanner: PathPlanner, public player: Player) {
     super();
@@ -24,6 +25,8 @@ export class Zombie extends YUKA.Vehicle {
 
     // steering
 
+    this.maxSpeed = 0.25;
+
     this.followPathBehaviour = new YUKA.FollowPathBehavior();
     this.followPathBehaviour.active = false;
     this.steering.add(this.followPathBehaviour);
@@ -34,8 +37,8 @@ export class Zombie extends YUKA.Vehicle {
 
     clips.forEach((clip) => {
       const action = mixer.clipAction(clip);
-      action.play();
-      action.enabled = false;
+      // action.play();
+      // action.enabled = false;
 
       this.animations.set(clip.name, action);
     });
@@ -70,14 +73,30 @@ export class Zombie extends YUKA.Vehicle {
     return distance <= tolerance;
   }
 
-  private updateAnimations(dt: number) {
-    this.mixer?.update(dt);
+  playAnimation(name: string) {
+    // if (this.currentAnimation) {
+    //   this.currentAnimation.enabled = false;
+    // }
+
+    // const action = this.animations.get(name);
+    // if (action) {
+    //   action.enabled = true;
+    //   this.currentAnimation = action;
+    // }
+
+    const nextAction = this.animations.get(name);
+    if (!nextAction) {
+      throw Error(`Could not find animation with name ${name}`);
+    }
+
+    nextAction.reset().setEffectiveTimeScale(1).setEffectiveWeight(1);
+
+    this.currentAction
+      ? nextAction.crossFadeFrom(this.currentAction, 0.25, false).play()
+      : nextAction.play();
   }
 
-  private playAnimation(name: string) {
-    const action = this.animations.get(name);
-    if (action) {
-      action.enabled = true;
-    }
+  private updateAnimations(dt: number) {
+    this.mixer?.update(dt);
   }
 }
