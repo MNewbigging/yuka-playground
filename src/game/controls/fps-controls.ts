@@ -1,5 +1,5 @@
 import * as YUKA from "yuka";
-import { Player } from "./player";
+import { Player } from "../entities/player";
 
 interface Input {
   forward: boolean;
